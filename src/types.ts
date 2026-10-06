@@ -74,9 +74,7 @@ export const GREETING_STYLE_LABEL: Record<GreetingStyle, string> = {
 export interface GreetingSettings {
   style: GreetingStyle;
   customGreeting: string;
-  voiceName: "Nova" | "Atlas" | "Willow" | "Sage";
-  // Which real Azure Neural voice answers phone calls (the Live Demo page's
-  // voice toggle) — independent of the cosmetic `voiceName` persona label.
+  // Which real Azure Neural voice answers phone calls.
   voiceGender: "female" | "male";
   offerAppointments: boolean;
   mentionHours: boolean;

@@ -90,7 +90,7 @@ export function BusinessProfile() {
         </div>
         <div className="field-row">
           <span className="field-label">Voice</span>
-          <span className="field-value">{greeting.voiceName}</span>
+          <span className="field-value">{greeting.voiceGender === "male" ? "Male" : "Female"}</span>
         </div>
         <div className="transcript-line ai" style={{ marginTop: 10 }}>
           <div className="transcript-bubble">{buildGreetingPreview(businessProfile, greeting)}</div>

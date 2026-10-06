@@ -25,7 +25,6 @@ export const EMPTY_PROFILE: BusinessProfile = {
 export const DEFAULT_GREETING: GreetingSettings = {
   style: "friendly",
   customGreeting: "",
-  voiceName: "Nova",
   voiceGender: "female",
   offerAppointments: true,
   mentionHours: true,

@@ -7,10 +7,10 @@ import { ARCHITECTURE_FLOW } from "../data/architecture";
 import { getOperator } from "../data/operators";
 import { useDemo } from "../context/DemoContext";
 import type { BusinessProfile, DemoStatus, GreetingSettings } from "../types";
-import { GREETING_STYLE_LABEL } from "../types";
 import { scrapeWebsite, formatHoursSummary } from "../engine/scrapeEngine";
 import { scrapeBusinessSite, getDemoStatus } from "../lib/api";
-import { buildGreetingPreview, DEFAULT_GREETING, DEFAULT_SCHEDULING, EMPTY_PROFILE } from "../data/defaults";
+import { DEFAULT_GREETING, DEFAULT_SCHEDULING, EMPTY_PROFILE } from "../data/defaults";
+import { GreetingVoiceEditor } from "../components/GreetingVoiceEditor";
 
 const PARTS = ["The problem", "Scope of the service", "New customer onboarding", "Architecture"];
 
@@ -221,23 +221,7 @@ export function ExecutiveDemo() {
               </div>
             )}
 
-            <div className="section-title">Greeting style</div>
-            <div className="pill-select" style={{ marginBottom: 10 }}>
-              {(Object.keys(GREETING_STYLE_LABEL) as (keyof typeof GREETING_STYLE_LABEL)[]).map((style) => (
-                <button
-                  key={style}
-                  className={`pill ${greetingDraft.style === style ? "active" : ""}`}
-                  onClick={() => setGreetingDraft({ ...greetingDraft, style })}
-                >
-                  {GREETING_STYLE_LABEL[style]}
-                </button>
-              ))}
-            </div>
-            {profileDraft.scrapedAt && (
-              <div className="transcript-line ai">
-                <div className="transcript-bubble">{buildGreetingPreview(profileDraft, greetingDraft)}</div>
-              </div>
-            )}
+            <GreetingVoiceEditor profile={profileDraft} greeting={greetingDraft} onChange={setGreetingDraft} hidePreferences />
 
             <div className="form-grid cols-2" style={{ marginTop: 14 }}>
               <div className="form-row">

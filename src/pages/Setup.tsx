@@ -8,6 +8,7 @@ import { scrapeBusinessSite, getDemoStatus } from "../lib/api";
 import { buildGreetingPreview, DEFAULT_GREETING, DEFAULT_SCHEDULING, EMPTY_PROFILE } from "../data/defaults";
 import { Disclaimer } from "../components/ui/Disclaimer";
 import { Badge } from "../components/ui/Badge";
+import { GreetingVoiceEditor } from "../components/GreetingVoiceEditor";
 
 const STEPS: DemoStep[] = ["profile", "greeting", "scheduling", "review"];
 const STEP_LABEL: Record<DemoStep, string> = {
@@ -225,74 +226,7 @@ export function Setup() {
 
       {step === "greeting" && (
         <div className="card">
-          <div className="section-title" style={{ marginTop: 0 }}>Greeting style</div>
-          <div className="pill-select" style={{ marginBottom: 14 }}>
-            {(Object.keys(GREETING_STYLE_LABEL) as (keyof typeof GREETING_STYLE_LABEL)[]).map((style) => (
-              <button
-                key={style}
-                className={`pill ${greetingDraft.style === style ? "active" : ""}`}
-                onClick={() => setGreetingDraft({ ...greetingDraft, style })}
-              >
-                {GREETING_STYLE_LABEL[style]}
-              </button>
-            ))}
-          </div>
-
-          {greetingDraft.style === "custom" && (
-            <div className="form-row">
-              <label htmlFor="custom-greeting">Custom greeting script</label>
-              <textarea
-                id="custom-greeting"
-                className="textarea-input"
-                value={greetingDraft.customGreeting}
-                onChange={(e) => setGreetingDraft({ ...greetingDraft, customGreeting: e.target.value })}
-                placeholder="Thanks for calling [business] — this is their AI receptionist..."
-              />
-            </div>
-          )}
-
-          <div className="form-row">
-            <label htmlFor="voice">Voice</label>
-            <select
-              id="voice"
-              className="select-input"
-              value={greetingDraft.voiceName}
-              onChange={(e) => setGreetingDraft({ ...greetingDraft, voiceName: e.target.value as GreetingSettings["voiceName"] })}
-            >
-              <option value="Nova">Nova — warm & friendly</option>
-              <option value="Atlas">Atlas — confident & clear</option>
-              <option value="Willow">Willow — calm & reassuring</option>
-              <option value="Sage">Sage — professional & neutral</option>
-            </select>
-          </div>
-
-          <div className="pref-row">
-            <span>Mention that we're closed, if applicable</span>
-            <label className="switch">
-              <input
-                type="checkbox"
-                checked={greetingDraft.mentionHours}
-                onChange={(e) => setGreetingDraft({ ...greetingDraft, mentionHours: e.target.checked })}
-              />
-              <span className="track" />
-            </label>
-          </div>
-          <div className="pref-row">
-            <span>Proactively offer to book an appointment</span>
-            <label className="switch">
-              <input
-                type="checkbox"
-                checked={greetingDraft.offerAppointments}
-                onChange={(e) => setGreetingDraft({ ...greetingDraft, offerAppointments: e.target.checked })}
-              />
-              <span className="track" />
-            </label>
-          </div>
-
-          <div className="section-title">Preview</div>
-          <div className="transcript-line ai">
-            <div className="transcript-bubble">{buildGreetingPreview(profileDraft, greetingDraft)}</div>
-          </div>
+          <GreetingVoiceEditor profile={profileDraft} greeting={greetingDraft} onChange={setGreetingDraft} />
         </div>
       )}
 
@@ -397,7 +331,7 @@ export function Setup() {
           </div>
           <div className="field-row">
             <span className="field-label">Voice</span>
-            <span className="field-value">{greetingDraft.voiceName}</span>
+            <span className="field-value">{greetingDraft.voiceGender === "male" ? "Male" : "Female"}</span>
           </div>
           <div className="field-row">
             <span className="field-label">Appointment length</span>

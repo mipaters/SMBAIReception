@@ -73,10 +73,11 @@ export function ExecutiveDemo() {
   };
 
   const handleOnboard = () => {
+    const schedulingDraft = { ...DEFAULT_SCHEDULING, ownerName, ownerMobile };
     setBusinessProfile(profileDraft);
     setGreeting(greetingDraft);
-    setScheduling({ ...DEFAULT_SCHEDULING, ownerName, ownerMobile });
-    activate();
+    setScheduling(schedulingDraft);
+    activate({ profile: profileDraft, greeting: greetingDraft, scheduling: schedulingDraft });
     setOnboarded(true);
     goNext();
   };

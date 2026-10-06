@@ -1,10 +1,11 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { isAzureOpenAIConfigured, readEnv } from "../shared/env";
+import { isAzureOpenAIConfigured, isAzureSpeechConfigured, readEnv } from "../shared/env";
 import { jsonResponse } from "../shared/http";
 
 export async function demoStatus(_request: HttpRequest, _context: InvocationContext): Promise<HttpResponseInit> {
   const env = readEnv();
   const openAIConfigured = isAzureOpenAIConfigured(env);
+  const speechConfigured = isAzureSpeechConfigured(env);
 
   const message = openAIConfigured
     ? "Azure OpenAI is configured. Website scraping runs in Connected Mode (real fetch + AI extraction)."
@@ -13,6 +14,7 @@ export async function demoStatus(_request: HttpRequest, _context: InvocationCont
   return jsonResponse(200, {
     mode: openAIConfigured ? "connected" : "simulation",
     azureOpenAIConfigured: openAIConfigured,
+    azureSpeechConfigured: speechConfigured,
     message,
   });
 }

@@ -31,6 +31,18 @@ export function Architecture() {
           <div className="call-meta" style={{ marginTop: 4 }}>
             {demoStatus.message}
           </div>
+          <div style={{ marginTop: 8 }}>
+            <Badge tone={demoStatus.azureSpeechConfigured ? "good" : "neutral"}>
+              {demoStatus.azureSpeechConfigured
+                ? "🔊 Azure Neural voice — live calls"
+                : "🔈 Twilio default voice — live calls"}
+            </Badge>
+            <div className="call-meta" style={{ marginTop: 4 }}>
+              {demoStatus.azureSpeechConfigured
+                ? "Azure AI Speech is configured — the voice receptionist speaks with an Azure Neural voice on real calls."
+                : "Azure AI Speech isn't configured — real calls fall back to Twilio's built-in voice. Set AZURE_SPEECH_KEY and AZURE_SPEECH_REGION to switch."}
+            </div>
+          </div>
         </div>
       )}
 

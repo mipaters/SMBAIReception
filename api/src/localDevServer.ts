@@ -18,6 +18,7 @@ import { activateBusiness } from "./functions/activateBusiness";
 import { voiceInbound } from "./functions/voiceInbound";
 import { voiceStatus } from "./functions/voiceStatus";
 import { recentVoiceActivity } from "./functions/recentVoiceActivity";
+import { voiceAudio } from "./functions/voiceAudio";
 
 function loadLocalSettings(): void {
   const settingsPath = path.join(__dirname, "..", "..", "local.settings.json");
@@ -54,6 +55,8 @@ function send(res: http.ServerResponse, result: HttpResponseInit): void {
   res.writeHead(status, headers);
   if (result.jsonBody !== undefined) {
     res.end(JSON.stringify(result.jsonBody));
+  } else if (Buffer.isBuffer(result.body)) {
+    res.end(result.body);
   } else {
     res.end(typeof result.body === "string" ? result.body : "");
   }
@@ -80,6 +83,12 @@ async function main() {
       json: async () => (bodyText ? JSON.parse(bodyText) : {}),
       formData: async () => new URLSearchParams(bodyText),
       query: url.searchParams,
+      headers: {
+        get: (name: string) => {
+          const value = req.headers[name.toLowerCase()];
+          return Array.isArray(value) ? (value[0] ?? null) : (value ?? null);
+        },
+      },
     } as unknown as Parameters<typeof demoStatus>[0];
 
     try {
@@ -109,6 +118,10 @@ async function main() {
       }
       if (url.pathname === "/api/recent-voice-activity" && req.method === "GET") {
         send(res, await recentVoiceActivity(mockRequest, makeContext()));
+        return;
+      }
+      if (url.pathname === "/api/voice-audio" && req.method === "GET") {
+        send(res, await voiceAudio(mockRequest, makeContext()));
         return;
       }
       res.writeHead(404, { "Content-Type": "application/json" });

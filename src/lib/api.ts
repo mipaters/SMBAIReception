@@ -27,6 +27,7 @@ export async function getDemoStatus(): Promise<DemoStatus> {
     const fallback: DemoStatus = {
       mode: "simulation",
       azureOpenAIConfigured: false,
+      azureSpeechConfigured: false,
       message:
         "Running in Simulation Mode. The API or Azure OpenAI is unavailable, so website scraping uses a deterministic template.",
     };

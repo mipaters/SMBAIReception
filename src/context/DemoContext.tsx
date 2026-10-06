@@ -30,7 +30,10 @@ interface DemoContextValue {
   setScheduling: (s: SchedulingSettings) => void;
 
   activated: boolean;
-  activate: () => void;
+  // Optional overrides let callers activate with data that was just set in
+  // the same tick, avoiding stale-closure reads of businessProfile/greeting/
+  // scheduling before React has applied those state updates.
+  activate: (overrides?: { profile?: BusinessProfile; greeting?: GreetingSettings; scheduling?: SchedulingSettings }) => void;
 
   appointments: Appointment[];
   addAppointment: (a: Appointment) => void;
@@ -87,13 +90,24 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     saveSession("scheduling", s);
   }, []);
 
-  const activate = useCallback(() => {
-    setActivatedState(true);
-    saveSession("activated", true);
-    // Also persist server-side so the real Twilio phone number (no browser in
-    // the loop) can answer calls grounded in this same business/greeting.
-    void activateBusinessOnServer(businessProfile, greeting, scheduling);
-  }, [businessProfile, greeting, scheduling]);
+  const activate = useCallback(
+    (overrides?: { profile?: BusinessProfile; greeting?: GreetingSettings; scheduling?: SchedulingSettings }) => {
+      setActivatedState(true);
+      saveSession("activated", true);
+      // Also persist server-side so the real Twilio phone number (no browser in
+      // the loop) can answer calls grounded in this same business/greeting.
+      // Prefer the overrides when provided — callers that just called
+      // setBusinessProfile/setGreeting/setScheduling in the same tick would
+      // otherwise hand us the pre-update values here (React state updates
+      // aren't visible until the next render).
+      void activateBusinessOnServer(
+        overrides?.profile ?? businessProfile,
+        overrides?.greeting ?? greeting,
+        overrides?.scheduling ?? scheduling,
+      );
+    },
+    [businessProfile, greeting, scheduling],
+  );
 
   const addAppointment = useCallback((a: Appointment) => {
     setAppointments((prev) => {

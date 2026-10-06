@@ -86,7 +86,7 @@ export function Setup() {
     setBusinessProfile(profileDraft);
     setGreeting(greetingDraft);
     setScheduling(schedulingDraft);
-    activate();
+    activate({ profile: profileDraft, greeting: greetingDraft, scheduling: schedulingDraft });
     navigate("/business-profile");
   };
 

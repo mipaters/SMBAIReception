@@ -184,5 +184,6 @@ export type DemoMode = "connected" | "simulation";
 export interface DemoStatus {
   mode: DemoMode;
   azureOpenAIConfigured: boolean;
+  azureSpeechConfigured: boolean;
   message: string;
 }

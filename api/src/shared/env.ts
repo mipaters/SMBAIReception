@@ -7,6 +7,9 @@ export interface EnvConfig {
   azureOpenAIEndpoint?: string;
   azureOpenAIKey?: string;
   azureOpenAIDeployment?: string;
+  azureSpeechKey?: string;
+  azureSpeechRegion?: string;
+  azureSpeechVoice?: string;
 }
 
 export function readEnv(): EnvConfig {
@@ -14,9 +17,16 @@ export function readEnv(): EnvConfig {
     azureOpenAIEndpoint: process.env.AZURE_OPENAI_ENDPOINT,
     azureOpenAIKey: process.env.AZURE_OPENAI_API_KEY,
     azureOpenAIDeployment: process.env.AZURE_OPENAI_DEPLOYMENT,
+    azureSpeechKey: process.env.AZURE_SPEECH_KEY,
+    azureSpeechRegion: process.env.AZURE_SPEECH_REGION,
+    azureSpeechVoice: process.env.AZURE_SPEECH_VOICE,
   };
 }
 
 export function isAzureOpenAIConfigured(env: EnvConfig = readEnv()): boolean {
   return Boolean(env.azureOpenAIEndpoint && env.azureOpenAIKey && env.azureOpenAIDeployment);
+}
+
+export function isAzureSpeechConfigured(env: EnvConfig = readEnv()): boolean {
+  return Boolean(env.azureSpeechKey && env.azureSpeechRegion);
 }

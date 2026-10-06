@@ -11,12 +11,13 @@ import { synthesizeSpeech } from "../shared/azureSpeech";
 export async function voiceAudio(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   const url = new URL(request.url);
   const text = (url.searchParams.get("text") ?? "").trim();
+  const voice = url.searchParams.get("voice")?.trim() || undefined;
   if (!text) {
     return { status: 400, body: "Missing text query parameter" };
   }
 
   try {
-    const audio = await synthesizeSpeech(text);
+    const audio = await synthesizeSpeech(text, voice);
     if (!audio) {
       return { status: 404, body: "Azure Speech is not configured" };
     }

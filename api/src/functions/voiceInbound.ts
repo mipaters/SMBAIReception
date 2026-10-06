@@ -3,6 +3,7 @@ import { getActiveBusiness } from "../shared/activeBusinessStore";
 import { tryLiveCallTurn } from "../shared/liveCall";
 import { buildVoiceGreeting, escapeTwiml } from "../shared/voiceGreeting";
 import { isAzureSpeechConfigured } from "../shared/env";
+import { pickAzureVoice } from "../shared/azureSpeech";
 import {
   appendCallTurn,
   getCallHistory,
@@ -25,21 +26,23 @@ function twiml(body: string): HttpResponseInit {
  * falls back to Twilio's built-in <Say> voice. The choice is made up front
  * from env vars (cheap, synchronous) — the actual speech synthesis happens
  * later when Twilio fetches the <Play> URL, so it never adds latency to
- * this webhook's own response.
+ * this webhook's own response. `voiceName` (from the Live Demo page's
+ * male/female toggle) is passed through as a query param so /voice-audio
+ * stays stateless.
  */
-function voiceTag(origin: string, text: string): string {
+function voiceTag(origin: string, text: string, voiceName: string): string {
   if (isAzureSpeechConfigured()) {
-    const playUrl = `${origin}/api/voice-audio?text=${encodeURIComponent(text)}`;
+    const playUrl = `${origin}/api/voice-audio?text=${encodeURIComponent(text)}&voice=${encodeURIComponent(voiceName)}`;
     return `<Play>${escapeTwiml(playUrl)}</Play>`;
   }
   return `<Say>${escapeTwiml(text)}</Say>`;
 }
 
-function sayAndGather(origin: string, actionUrl: string, say: string, fallback: string): string {
+function sayAndGather(origin: string, actionUrl: string, say: string, fallback: string, voiceName: string): string {
   return (
-    voiceTag(origin, say) +
+    voiceTag(origin, say, voiceName) +
     `<Gather input="speech" action="${actionUrl}" method="POST" speechTimeout="auto" timeout="6" language="en-US"></Gather>` +
-    voiceTag(origin, fallback) +
+    voiceTag(origin, fallback, voiceName) +
     `<Hangup/>`
   );
 }
@@ -74,10 +77,12 @@ export async function voiceInbound(request: HttpRequest, context: InvocationCont
         voiceTag(
           origin,
           "This demo line hasn't been set up yet. Please activate a business in the SMB AI Receptionist app, then call back.",
+          pickAzureVoice("female"),
         ) + `<Hangup/>`,
       );
     }
     const business = activeEntry.business;
+    const voiceName = pickAzureVoice(activeEntry.voiceGender);
 
     // First hit for this call: no caller speech yet — speak the greeting and
     // gather the caller's first words.
@@ -88,6 +93,7 @@ export async function voiceInbound(request: HttpRequest, context: InvocationCont
           actionUrl,
           buildVoiceGreeting(business),
           "I didn't catch anything — please call back anytime. Goodbye!",
+          voiceName,
         ),
       );
     }
@@ -97,7 +103,7 @@ export async function voiceInbound(request: HttpRequest, context: InvocationCont
 
     if (!result) {
       return twiml(
-        voiceTag(origin, "Sorry, I'm having trouble right now. Please try calling back in a moment.") +
+        voiceTag(origin, "Sorry, I'm having trouble right now. Please try calling back in a moment.", voiceName) +
           `<Hangup/>`,
       );
     }
@@ -117,7 +123,7 @@ export async function voiceInbound(request: HttpRequest, context: InvocationCont
     }
 
     return twiml(
-      sayAndGather(origin, actionUrl, result.reply, "Thanks for calling — have a great day! Goodbye."),
+      sayAndGather(origin, actionUrl, result.reply, "Thanks for calling — have a great day! Goodbye.", voiceName),
     );
   } catch (err) {
     context.error("voiceInbound failed", { error: err instanceof Error ? err.message : String(err) });

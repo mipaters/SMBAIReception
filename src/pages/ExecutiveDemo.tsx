@@ -11,10 +11,8 @@ import { GREETING_STYLE_LABEL } from "../types";
 import { scrapeWebsite, formatHoursSummary } from "../engine/scrapeEngine";
 import { scrapeBusinessSite, getDemoStatus } from "../lib/api";
 import { buildGreetingPreview, DEFAULT_GREETING, DEFAULT_SCHEDULING, EMPTY_PROFILE } from "../data/defaults";
-import { LiveCallSimulator } from "../components/LiveCallSimulator";
-import { DEMO_PHONE_NUMBER, DEMO_PHONE_NUMBER_TEL } from "../data/voice";
 
-const PARTS = ["The problem", "Scope of the service", "New customer onboarding", "Live customer call", "Architecture"];
+const PARTS = ["The problem", "Scope of the service", "New customer onboarding", "Architecture"];
 
 export function ExecutiveDemo() {
   const [part, setPart] = useState(0);
@@ -86,8 +84,8 @@ export function ExecutiveDemo() {
     <div>
       <div className="page-title">Executive Demo Walkthrough</div>
       <p className="page-subtitle">
-        A guided, five-part walkthrough: the market problem, what's in scope, onboarding a real new customer, a live
-        interactive AI call to that business, and the underlying architecture.
+        A guided, four-part walkthrough: the market problem, what's in scope, onboarding a real new customer, and the
+        underlying architecture. Try the live phone demo afterward to see it answer a real call.
       </p>
 
       <div className="wizard-steps">
@@ -279,31 +277,6 @@ export function ExecutiveDemo() {
 
       {part === 3 && (
         <div>
-          <div className="section-title">Live customer call</div>
-          {onboarded ? (
-            <>
-              <p className="call-meta" style={{ marginBottom: 12 }}>
-                This is a genuinely interactive call — type as the caller and Azure OpenAI generates each receptionist
-                reply, grounded only in {businessProfile.businessName}'s real profile from the previous step.
-              </p>
-              <div className="card-soft" style={{ marginBottom: 14 }}>
-                📞 Prefer a real phone call? Call{" "}
-                <a href={`tel:${DEMO_PHONE_NUMBER_TEL}`} style={{ fontWeight: 600 }}>
-                  {DEMO_PHONE_NUMBER}
-                </a>{" "}
-                — this business is now live on that number, answered by SMB AI Receptionist. Any booking you make will
-                show up in Appointments automatically within a few seconds.
-              </div>
-              <LiveCallSimulator />
-            </>
-          ) : (
-            <div className="card-soft">Go back and onboard a business first.</div>
-          )}
-        </div>
-      )}
-
-      {part === 4 && (
-        <div>
           <div className="section-title">Call flow</div>
           <div className="flow-diagram">
             {ARCHITECTURE_FLOW.map((node) => (
@@ -314,13 +287,18 @@ export function ExecutiveDemo() {
             ))}
           </div>
           <div className="card-soft">
-            Website scraping and the live call above both run against real Azure OpenAI when configured. What's still
-            simulated: real telephony forwarding, speech-to-text/text-to-speech, a live calendar integration (appointment
-            slots are offered by the model, not read from a real calendar), and a real SMS gateway.
+            Website scraping, real inbound phone calls (via Twilio), and the AI's replies (via Azure OpenAI + Azure
+            Speech) all run for real when configured. What's still simulated: a live calendar integration (appointment
+            slots are offered by the model, not read from a real calendar) and a real SMS gateway.
           </div>
-          <Link to="/architecture" className="btn btn-solid btn-block" style={{ marginTop: 12 }}>
+          <Link to="/architecture" className="btn btn-outline btn-block" style={{ marginTop: 12 }}>
             View full demo vs. production architecture →
           </Link>
+          {onboarded && (
+            <Link to="/live-demo" className="btn btn-solid btn-block" style={{ marginTop: 10 }}>
+              📞 Now try the live demo →
+            </Link>
+          )}
         </div>
       )}
 

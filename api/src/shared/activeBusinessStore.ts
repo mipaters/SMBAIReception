@@ -16,13 +16,16 @@ import type { LiveCallBusinessContext } from "./liveCall";
  */
 export interface ActiveBusiness {
   business: LiveCallBusinessContext;
+  // Which Azure Neural voice answers calls for this business — set by the
+  // Live Demo page's male/female voice toggle.
+  voiceGender: "female" | "male";
   activatedAt: string;
 }
 
 let active: ActiveBusiness | null = null;
 
-export function setActiveBusiness(business: LiveCallBusinessContext): void {
-  active = { business, activatedAt: new Date().toISOString() };
+export function setActiveBusiness(business: LiveCallBusinessContext, voiceGender: "female" | "male" = "female"): void {
+  active = { business, voiceGender, activatedAt: new Date().toISOString() };
 }
 
 export function getActiveBusiness(): ActiveBusiness | null {

@@ -12,6 +12,14 @@ import { isAzureSpeechConfigured, readEnv } from "./env";
  */
 
 const DEFAULT_VOICE = "en-US-JennyNeural";
+export const FEMALE_VOICE = "en-US-JennyNeural";
+export const MALE_VOICE = "en-US-GuyNeural";
+
+/** Maps the Live Demo page's male/female toggle to a real Azure Neural voice name. */
+export function pickAzureVoice(gender: "female" | "male"): string {
+  return gender === "male" ? MALE_VOICE : FEMALE_VOICE;
+}
+
 const TOKEN_TTL_MS = 9 * 60 * 1000; // Azure STS tokens are valid ~10 minutes.
 
 let cachedToken: { token: string; region: string; expiresAt: number } | null = null;
@@ -44,14 +52,16 @@ function escapeSsml(text: string): string {
 /**
  * Returns an MP3 buffer for the given text, or null if Azure Speech isn't
  * configured (callers should fall back to Twilio's own <Say> in that case).
+ * `voiceOverride` (e.g. from `pickAzureVoice`) takes precedence over the
+ * `AZURE_SPEECH_VOICE` env var, which in turn falls back to a sane default.
  */
-export async function synthesizeSpeech(text: string): Promise<Buffer | null> {
+export async function synthesizeSpeech(text: string, voiceOverride?: string): Promise<Buffer | null> {
   const env = readEnv();
   if (!isAzureSpeechConfigured(env)) return null;
 
   const key = env.azureSpeechKey as string;
   const region = env.azureSpeechRegion as string;
-  const voice = env.azureSpeechVoice || DEFAULT_VOICE;
+  const voice = voiceOverride || env.azureSpeechVoice || DEFAULT_VOICE;
 
   const token = await getAccessToken(key, region);
   const ssml = `<speak version="1.0" xml:lang="en-US"><voice xml:lang="en-US" name="${voice}">${escapeSsml(

@@ -5,6 +5,7 @@ import { getOperator } from "../../data/operators";
 
 const PRIMARY_NAV = [
   { to: "/", label: "Home", icon: "🏠" },
+  { to: "/live-demo", label: "Live Demo", icon: "📞" },
   { to: "/appointments", label: "Appointments", icon: "🗓️" },
   { to: "/history", label: "History", icon: "🕑" },
 ];

@@ -16,7 +16,8 @@ export async function activateBusiness(request: HttpRequest, context: Invocation
   try {
     const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
     const business = parseBusinessContext(body.business);
-    setActiveBusiness(business);
+    const voiceGender = body.voiceGender === "male" ? "male" : "female";
+    setActiveBusiness(business, voiceGender);
     return jsonResponse(200, { ok: true }, correlationId);
   } catch (err) {
     context.error("activateBusiness failed", { correlationId, errorType: err instanceof ValidationError ? "validation" : "unexpected" });

@@ -144,7 +144,10 @@ export async function activateBusinessOnServer(
     await fetchWithTimeout("/api/activate-business", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ business: buildBusinessPayload(profile, greeting, scheduling) }),
+      body: JSON.stringify({
+        business: buildBusinessPayload(profile, greeting, scheduling),
+        voiceGender: greeting.voiceGender,
+      }),
     });
   } catch {
     // Best-effort — if this fails, the real phone number just won't be live;

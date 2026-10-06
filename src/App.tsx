@@ -3,6 +3,7 @@ import { AppShell } from "./components/layout/AppShell";
 import { DemoProvider } from "./context/DemoContext";
 import { Home } from "./pages/Home";
 import { ExecutiveDemo } from "./pages/ExecutiveDemo";
+import { LiveDemo } from "./pages/LiveDemo";
 import { Setup } from "./pages/Setup";
 import { BusinessProfile } from "./pages/BusinessProfile";
 import { Appointments } from "./pages/Appointments";
@@ -21,6 +22,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/executive-demo" element={<ExecutiveDemo />} />
+            <Route path="/live-demo" element={<LiveDemo />} />
             <Route path="/setup" element={<Setup />} />
             <Route path="/business-profile" element={<BusinessProfile />} />
             <Route path="/appointments" element={<Appointments />} />

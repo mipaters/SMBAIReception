@@ -85,7 +85,7 @@ export function ExecutiveDemo() {
       <div className="page-title">Executive Demo Walkthrough</div>
       <p className="page-subtitle">
         A guided, four-part walkthrough: the market problem, what's in scope, onboarding a real new customer, and the
-        underlying architecture. Try the live phone demo afterward to see it answer a real call.
+        underlying architecture.
       </p>
 
       <div className="wizard-steps">
@@ -278,11 +278,6 @@ export function ExecutiveDemo() {
           <Link to="/architecture" className="btn btn-outline btn-block" style={{ marginTop: 12 }}>
             View full demo vs. production architecture →
           </Link>
-          {onboarded && (
-            <Link to="/live-demo" className="btn btn-solid btn-block" style={{ marginTop: 10 }}>
-              📞 Now try the live demo →
-            </Link>
-          )}
         </div>
       )}
 

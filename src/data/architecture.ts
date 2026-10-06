@@ -82,7 +82,7 @@ export const ARCHITECTURE_COMPONENTS: ArchComponent[] = [
 
 export const KNOWN_GAPS = [
   "This is a client-rendered demo with session-only storage — nothing persists across browser sessions or devices, by design.",
-  "No real phone number, carrier forwarding, or SIP/Twilio trunk is connected — every call in Live Demo and the Executive Demo is a scripted transcript.",
+  "No real phone number, carrier forwarding, or SIP/Twilio trunk is connected — every call in Live Demo and the Executive Walkthrough is a scripted transcript.",
   "Website scraping can run for real (see the 'Make scraping real' setup note on this page) if you configure Azure OpenAI in the optional api/ project; otherwise it uses a deterministic keyword-classifier template.",
   "Scheduling slots are illustrative; there is no connection to a real calendar or booking platform.",
   "SMS notifications shown in transcripts are illustrative text previews; no real text message is sent to any phone number.",

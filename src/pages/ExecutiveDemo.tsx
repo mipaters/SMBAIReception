@@ -82,7 +82,7 @@ export function ExecutiveDemo() {
 
   return (
     <div>
-      <div className="page-title">Executive Demo Walkthrough</div>
+      <div className="page-title">Executive Walkthrough</div>
       <p className="page-subtitle">
         A guided, four-part walkthrough: the market problem, what's in scope, onboarding a real new customer, and the
         underlying architecture.
@@ -255,6 +255,12 @@ export function ExecutiveDemo() {
               ✅ Activate SMB AI Receptionist for this business →
             </button>
             {!profileDraft.scrapedAt && <div className="disclaimer">Scrape a website above before activating.</div>}
+            {!onboarded && (
+              <div className="call-meta" style={{ marginTop: 10 }}>
+                Short on time? Use "Next →" below to continue to the architecture overview without entering or
+                scraping business info.
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -286,7 +292,7 @@ export function ExecutiveDemo() {
           ← Back
         </button>
         {part < PARTS.length - 1 ? (
-          <button className="btn btn-solid" onClick={goNext} disabled={part === 2 && !onboarded}>
+          <button className="btn btn-solid" onClick={goNext}>
             Next →
           </button>
         ) : (

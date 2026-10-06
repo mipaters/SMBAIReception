@@ -9,7 +9,7 @@ import { Disclaimer } from "../components/ui/Disclaimer";
 /**
  * The dedicated page for testing the SMB AI Receptionist with a real phone
  * call (via Twilio) or the in-app text simulator, once a business has been
- * onboarded and activated (via the Executive Demo walkthrough or Setup
+ * onboarded and activated (via the Executive Walkthrough or Setup
  * wizard). Lets the presenter tweak the live greeting/voice without
  * re-running the whole onboarding flow, and reset to onboard a new customer.
  */
@@ -37,7 +37,7 @@ export function LiveDemo() {
           No business is activated yet.
           <div style={{ marginTop: 12, display: "flex", gap: 10, justifyContent: "center" }}>
             <Link to="/executive-demo" className="btn btn-solid">
-              Run the Executive Demo
+              Run the Executive Walkthrough
             </Link>
             <Link to="/setup" className="btn btn-outline">
               Run Setup wizard

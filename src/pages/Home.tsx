@@ -22,7 +22,7 @@ export function Home() {
           to confirm.</p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
           <Link to="/executive-demo" className="btn btn-primary">
-            ▶ Run Executive Demo
+            ▶ Run Executive Walkthrough
           </Link>
           <Link to="/setup" className="btn btn-secondary">
             Set up your own business
@@ -95,7 +95,7 @@ export function Home() {
             </div>
           </Link>
         ))}
-        {recent.length === 0 && <div className="empty-state">No calls yet. Try the Executive Demo.</div>}
+        {recent.length === 0 && <div className="empty-state">No calls yet. Try the Executive Walkthrough.</div>}
       </div>
       <div style={{ textAlign: "right" }}>
         <Link to="/history" className="badge badge-brand">

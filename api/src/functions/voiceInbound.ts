@@ -99,7 +99,9 @@ export async function voiceInbound(request: HttpRequest, context: InvocationCont
     }
 
     const history = getCallHistory(callSid);
-    const result = await tryLiveCallTurn(business, history, speechResult);
+    const result = await tryLiveCallTurn(business, history, speechResult, (reason, detail) => {
+      context.error("tryLiveCallTurn failed", { callSid, reason, detail });
+    });
 
     if (!result) {
       return twiml(

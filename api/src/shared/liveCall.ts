@@ -158,22 +158,49 @@ Respond ONLY with a single minified JSON object, no prose, no markdown fences, i
 }
 
 /**
+ * GPT models occasionally ignore the "no markdown fences" instruction and
+ * wrap the JSON in a ```json ... ``` code block, or add stray leading/
+ * trailing prose. Strip fences and fall back to extracting the first
+ * `{...}` block before giving up, so a merely-decorated response doesn't
+ * get treated as a hard failure.
+ */
+function extractJsonObject(content: string): unknown {
+  const fenced = content.trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+  try {
+    return JSON.parse(fenced);
+  } catch {
+    const match = fenced.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error("No JSON object found in model response");
+    return JSON.parse(match[0]);
+  }
+}
+
+/**
  * Sends the running call transcript plus the caller's latest message to
  * Azure OpenAI and asks it to reply in-character as the business's AI
  * receptionist, grounded only in the provided business profile. Returns null
  * if Azure OpenAI isn't configured or the call fails/returns an unexpected
- * shape.
+ * shape. `onFailure` (optional) is called with a short diagnostic reason on
+ * every null path, since this demo has no database to inspect afterward —
+ * without it, a production failure is otherwise completely silent.
  */
 export async function tryLiveCallTurn(
   ctx: LiveCallBusinessContext,
   history: LiveCallTurnMessage[],
   callerMessage: string,
+  onFailure?: (reason: string, detail?: unknown) => void,
 ): Promise<LiveCallTurnResult | null> {
   const env = readEnv();
-  if (!isAzureOpenAIConfigured(env)) return null;
+  if (!isAzureOpenAIConfigured(env)) {
+    onFailure?.("azure-openai-not-configured");
+    return null;
+  }
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 15000);
+  // Kept comfortably under Twilio's default ~15s webhook timeout so we can
+  // still return a graceful spoken error instead of Twilio itself erroring
+  // out and hanging up before we respond.
+  const timer = setTimeout(() => controller.abort(), 12000);
 
   try {
     const url = `${env.azureOpenAIEndpoint}/openai/deployments/${env.azureOpenAIDeployment}/chat/completions?api-version=2024-08-01-preview`;
@@ -190,18 +217,44 @@ export async function tryLiveCallTurn(
         "Content-Type": "application/json",
         "api-key": env.azureOpenAIKey as string,
       },
-      body: JSON.stringify({ messages, temperature: 0.4, max_tokens: 400 }),
+      body: JSON.stringify({
+        messages,
+        temperature: 0.4,
+        max_tokens: 400,
+        // Prompt-only JSON instructions are unreliable — the model
+        // occasionally replies with plain prose instead (especially on
+        // longer answers), which used to hang up on the caller. JSON mode
+        // enforces valid JSON output at the API level.
+        response_format: { type: "json_object" },
+      }),
     });
 
-    if (!res.ok) return null;
+    if (!res.ok) {
+      const bodyText = await res.text().catch(() => "");
+      onFailure?.("azure-openai-http-error", { status: res.status, body: bodyText.slice(0, 500) });
+      return null;
+    }
     const data = (await res.json()) as ChatCompletionResponse;
     const content = data.choices?.[0]?.message?.content;
-    if (!content) return null;
+    if (!content) {
+      onFailure?.("azure-openai-empty-content", data);
+      return null;
+    }
 
-    const parsed = JSON.parse(content);
-    if (!isValidTurnResult(parsed)) return null;
+    let parsed: unknown;
+    try {
+      parsed = extractJsonObject(content);
+    } catch (parseErr) {
+      onFailure?.("json-parse-failed", { content: content.slice(0, 500), error: String(parseErr) });
+      return null;
+    }
+    if (!isValidTurnResult(parsed)) {
+      onFailure?.("invalid-turn-result-shape", parsed);
+      return null;
+    }
     return { reply: parsed.reply, booking: parsed.booking ?? null };
-  } catch {
+  } catch (err) {
+    onFailure?.(controller.signal.aborted ? "azure-openai-timeout" : "azure-openai-fetch-failed", String(err));
     return null;
   } finally {
     clearTimeout(timer);

@@ -29,7 +29,9 @@ export async function liveCallTurn(request: HttpRequest, context: InvocationCont
     const history = parseHistory(body.history);
     const callerMessage = validateText(body.callerMessage, "callerMessage");
 
-    const result = await tryLiveCallTurn(business, history, callerMessage);
+    const result = await tryLiveCallTurn(business, history, callerMessage, (reason, detail) => {
+      context.error("tryLiveCallTurn failed", { correlationId, reason, detail });
+    });
     if (!result) {
       return jsonResponse(
         200,

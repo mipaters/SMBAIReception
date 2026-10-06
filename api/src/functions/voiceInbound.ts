@@ -59,12 +59,13 @@ export async function voiceInbound(request: HttpRequest, context: InvocationCont
     const speechResult = String(form.get("SpeechResult") ?? "").trim();
     // Azure Static Web Apps' managed Functions run behind a proxy, so
     // request.url exposes the *internal* azurewebsites.net origin — Twilio
-    // can't call back to that for the next turn. The proxy forwards the
-    // public host/protocol via X-Forwarded-Host/Proto, so prefer those and
-    // only fall back to request.url's origin for local dev (no proxy).
-    const forwardedHost = request.headers.get("x-forwarded-host");
-    const forwardedProto = request.headers.get("x-forwarded-proto") ?? "https";
-    const origin = forwardedHost ? `${forwardedProto}://${forwardedHost}` : new URL(request.url).origin;
+    // can't call back to that for the next turn. SWA's proxy does not
+    // reliably forward the public host via X-Forwarded-Host, so the public
+    // origin must be configured explicitly via PUBLIC_BASE_URL (set in the
+    // SWA production app settings). Falls back to request.url's origin for
+    // local dev, where there's no proxy in front of the API.
+    const configuredOrigin = process.env.PUBLIC_BASE_URL?.trim().replace(/\/+$/, "");
+    const origin = configuredOrigin || new URL(request.url).origin;
     const actionUrl = `${origin}/api/voice-inbound`;
 
     const activeEntry = getActiveBusiness();

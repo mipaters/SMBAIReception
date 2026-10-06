@@ -3,6 +3,7 @@ import { useDemo } from "../context/DemoContext";
 import { Disclaimer } from "../components/ui/Disclaimer";
 import { OutcomeBadge } from "../components/ui/Badge";
 import { getOperator } from "../data/operators";
+import { DEMO_PHONE_NUMBER, DEMO_PHONE_NUMBER_TEL } from "../data/voice";
 
 export function Home() {
   const { callHistory, appointments, businessProfile, activated, operatorId } = useDemo();
@@ -45,7 +46,13 @@ export function Home() {
         <div className="card-soft" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
           <div>
             <div style={{ fontWeight: 700 }}>{businessProfile.businessName}</div>
-            <div className="call-meta">SMB AI Receptionist is active for this business.</div>
+            <div className="call-meta">
+              SMB AI Receptionist is active for this business. Call{" "}
+              <a href={`tel:${DEMO_PHONE_NUMBER_TEL}`} style={{ fontWeight: 600 }}>
+                {DEMO_PHONE_NUMBER}
+              </a>{" "}
+              to try it live.
+            </div>
           </div>
           <Link to="/business-profile" className="btn btn-outline">
             View profile

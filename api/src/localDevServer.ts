@@ -14,6 +14,10 @@ import type { HttpResponseInit } from "@azure/functions";
 import { demoStatus } from "./functions/demoStatus";
 import { scrapeBusinessSite } from "./functions/scrapeBusinessSite";
 import { liveCallTurn } from "./functions/liveCallTurn";
+import { activateBusiness } from "./functions/activateBusiness";
+import { voiceInbound } from "./functions/voiceInbound";
+import { voiceStatus } from "./functions/voiceStatus";
+import { recentVoiceActivity } from "./functions/recentVoiceActivity";
 
 function loadLocalSettings(): void {
   const settingsPath = path.join(__dirname, "..", "..", "local.settings.json");
@@ -72,7 +76,9 @@ async function main() {
     const url = new URL(req.url ?? "/", `http://localhost:${port}`);
     const bodyText = req.method === "POST" ? await readBody(req) : "";
     const mockRequest = {
+      url: url.toString(),
       json: async () => (bodyText ? JSON.parse(bodyText) : {}),
+      formData: async () => new URLSearchParams(bodyText),
       query: url.searchParams,
     } as unknown as Parameters<typeof demoStatus>[0];
 
@@ -87,6 +93,22 @@ async function main() {
       }
       if (url.pathname === "/api/live-call-turn" && req.method === "POST") {
         send(res, await liveCallTurn(mockRequest, makeContext()));
+        return;
+      }
+      if (url.pathname === "/api/activate-business" && req.method === "POST") {
+        send(res, await activateBusiness(mockRequest, makeContext()));
+        return;
+      }
+      if (url.pathname === "/api/voice-inbound" && req.method === "POST") {
+        send(res, await voiceInbound(mockRequest, makeContext()));
+        return;
+      }
+      if (url.pathname === "/api/voice-status" && req.method === "POST") {
+        send(res, await voiceStatus(mockRequest, makeContext()));
+        return;
+      }
+      if (url.pathname === "/api/recent-voice-activity" && req.method === "GET") {
+        send(res, await recentVoiceActivity(mockRequest, makeContext()));
         return;
       }
       res.writeHead(404, { "Content-Type": "application/json" });

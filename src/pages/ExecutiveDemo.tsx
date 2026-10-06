@@ -12,6 +12,7 @@ import { scrapeWebsite, formatHoursSummary } from "../engine/scrapeEngine";
 import { scrapeBusinessSite, getDemoStatus } from "../lib/api";
 import { buildGreetingPreview, DEFAULT_GREETING, DEFAULT_SCHEDULING, EMPTY_PROFILE } from "../data/defaults";
 import { LiveCallSimulator } from "../components/LiveCallSimulator";
+import { DEMO_PHONE_NUMBER, DEMO_PHONE_NUMBER_TEL } from "../data/voice";
 
 const PARTS = ["The problem", "Scope of the service", "New customer onboarding", "Live customer call", "Architecture"];
 
@@ -284,6 +285,14 @@ export function ExecutiveDemo() {
                 This is a genuinely interactive call — type as the caller and Azure OpenAI generates each receptionist
                 reply, grounded only in {businessProfile.businessName}'s real profile from the previous step.
               </p>
+              <div className="card-soft" style={{ marginBottom: 14 }}>
+                📞 Prefer a real phone call? Call{" "}
+                <a href={`tel:${DEMO_PHONE_NUMBER_TEL}`} style={{ fontWeight: 600 }}>
+                  {DEMO_PHONE_NUMBER}
+                </a>{" "}
+                — this business is now live on that number, answered by SMB AI Receptionist. Any booking you make will
+                show up in Appointments automatically within a few seconds.
+              </div>
               <LiveCallSimulator />
             </>
           ) : (

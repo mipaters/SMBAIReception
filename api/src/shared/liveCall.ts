@@ -42,6 +42,46 @@ export interface LiveCallTurnResult {
   booking: LiveCallBooking | null;
 }
 
+/**
+ * Parses an untrusted request-body `business` field into a validated
+ * `LiveCallBusinessContext`, defaulting any missing/malformed fields.
+ * Shared between the browser-driven live-call-turn endpoint and the Twilio
+ * voice webhook (which builds the same shape from the server-side active
+ * business store instead of a request body).
+ */
+export function parseBusinessContext(value: unknown): LiveCallBusinessContext {
+  if (!value || typeof value !== "object") {
+    return parseBusinessContext({});
+  }
+  const v = value as Record<string, unknown>;
+  return {
+    businessName: typeof v.businessName === "string" ? v.businessName : "the business",
+    category: typeof v.category === "string" ? v.category : "other",
+    about: typeof v.about === "string" ? v.about : "",
+    phone: typeof v.phone === "string" ? v.phone : "",
+    address: typeof v.address === "string" ? v.address : "",
+    services: Array.isArray(v.services) ? v.services.filter((s): s is string => typeof s === "string") : [],
+    pricing: Array.isArray(v.pricing)
+      ? v.pricing.filter(
+          (p): p is { service: string; price: string } =>
+            !!p &&
+            typeof p === "object" &&
+            typeof (p as Record<string, unknown>).service === "string" &&
+            typeof (p as Record<string, unknown>).price === "string",
+        )
+      : [],
+    hours: Array.isArray(v.hours) ? (v.hours as LiveCallBusinessContext["hours"]) : [],
+    faqs: Array.isArray(v.faqs) ? (v.faqs as LiveCallBusinessContext["faqs"]) : [],
+    greetingStyle: typeof v.greetingStyle === "string" ? v.greetingStyle : "friendly",
+    customGreeting: typeof v.customGreeting === "string" ? v.customGreeting : "",
+    offerAppointments: Boolean(v.offerAppointments),
+    mentionHours: Boolean(v.mentionHours),
+    appointmentLengthMinutes: typeof v.appointmentLengthMinutes === "number" ? v.appointmentLengthMinutes : 30,
+    bookableDays: Array.isArray(v.bookableDays) ? v.bookableDays.filter((d): d is string => typeof d === "string") : [],
+    ownerName: typeof v.ownerName === "string" ? v.ownerName : "",
+  };
+}
+
 interface ChatCompletionResponse {
   choices?: { message?: { content?: string } }[];
 }

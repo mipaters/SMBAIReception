@@ -1,0 +1,126 @@
+import { Link } from "react-router-dom";
+import { useDemo } from "../context/DemoContext";
+import { BUSINESS_CATEGORY_LABEL, GREETING_STYLE_LABEL } from "../types";
+import { formatHoursSummary } from "../engine/scrapeEngine";
+import { buildGreetingPreview } from "../data/defaults";
+import { Disclaimer } from "../components/ui/Disclaimer";
+
+export function BusinessProfile() {
+  const { businessProfile, greeting, scheduling, activated } = useDemo();
+
+  if (!activated) {
+    return (
+      <div>
+        <div className="page-title">Business Profile</div>
+        <div className="empty-state">
+          No business set up yet.
+          <div style={{ marginTop: 12 }}>
+            <Link to="/setup" className="btn btn-solid">
+              Run the Setup wizard
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="page-title">{businessProfile.businessName}</div>
+      <p className="page-subtitle">{businessProfile.website} · {BUSINESS_CATEGORY_LABEL[businessProfile.category]}</p>
+
+      <div className="section-title">Business info</div>
+      <div className="card">
+        <div className="field-row">
+          <span className="field-label">Phone</span>
+          <span className="field-value">{businessProfile.phone || "—"}</span>
+        </div>
+        <div className="field-row">
+          <span className="field-label">Address</span>
+          <span className="field-value">{businessProfile.address || "—"}</span>
+        </div>
+        <div className="field-row">
+          <span className="field-label">Hours</span>
+          <span className="field-value">{formatHoursSummary(businessProfile.hours)}</span>
+        </div>
+        <p style={{ fontSize: 14, lineHeight: 1.5 }}>{businessProfile.about}</p>
+      </div>
+
+      <div className="section-title">Services</div>
+      <div className="card">
+        <div className="pill-select">
+          {businessProfile.services.map((s) => (
+            <span className="pill" key={s}>
+              {s}
+            </span>
+          ))}
+          {businessProfile.services.length === 0 && <span className="call-meta">No services detected.</span>}
+        </div>
+      </div>
+
+      <div className="section-title">Pricing</div>
+      <div className="card">
+        {businessProfile.pricing.map((p, i) => (
+          <div className="field-row" key={i}>
+            <span className="field-label">{p.service}</span>
+            <span className="field-value">{p.price}</span>
+          </div>
+        ))}
+        {businessProfile.pricing.length === 0 && <span className="call-meta">No pricing detected.</span>}
+      </div>
+
+      <div className="section-title">FAQs SMB AI Receptionist can answer</div>
+      <div className="card">
+        {businessProfile.faqs.map((f, i) => (
+          <div className="field-row" key={i} style={{ display: "block" }}>
+            <div className="field-label" style={{ fontWeight: 700, color: "inherit" }}>
+              Q: {f.question}
+            </div>
+            <div style={{ fontSize: 13.5, marginTop: 2 }}>A: {f.answer}</div>
+          </div>
+        ))}
+        {businessProfile.faqs.length === 0 && <span className="call-meta">No FAQs detected.</span>}
+      </div>
+
+      <div className="section-title">Greeting & voice</div>
+      <div className="card">
+        <div className="field-row">
+          <span className="field-label">Style</span>
+          <span className="field-value">{GREETING_STYLE_LABEL[greeting.style]}</span>
+        </div>
+        <div className="field-row">
+          <span className="field-label">Voice</span>
+          <span className="field-value">{greeting.voiceName}</span>
+        </div>
+        <div className="transcript-line ai" style={{ marginTop: 10 }}>
+          <div className="transcript-bubble">{buildGreetingPreview(businessProfile, greeting)}</div>
+        </div>
+      </div>
+
+      <div className="section-title">Scheduling</div>
+      <div className="card">
+        <div className="field-row">
+          <span className="field-label">Appointment length</span>
+          <span className="field-value">{scheduling.appointmentLengthMinutes} min</span>
+        </div>
+        <div className="field-row">
+          <span className="field-label">Owner</span>
+          <span className="field-value">{scheduling.ownerName || "—"}</span>
+        </div>
+        <div className="field-row">
+          <span className="field-label">Owner mobile</span>
+          <span className="field-value">{scheduling.ownerMobile || "—"}</span>
+        </div>
+        <div className="field-row">
+          <span className="field-label">Bookable days</span>
+          <span className="field-value">{scheduling.bookableDays.join(", ")}</span>
+        </div>
+      </div>
+
+      <Link to="/setup" className="btn btn-outline btn-block">
+        Edit in Setup wizard
+      </Link>
+      <Disclaimer text="This profile was generated by a simulated website scrape for demo purposes." />
+    </div>
+  );
+}
